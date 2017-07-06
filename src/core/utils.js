@@ -596,3 +596,63 @@ export const shallowEqualKeys = (a,b, keys) => {
     return eq(a[key], b[key])
   })
 }
+
+export const version = (version) => {
+  var vers = version.split(".")
+  return {
+    major: vers[0] || 0,
+    monor: vers[1] || 0,
+    patch: vers[2] || 0,
+  }
+}
+
+export const urljoin = (...args) => {
+  function normalize (str) {
+    // make sure protocol is followed by two slashes
+    str = str.replace(/:\//g, "://")
+    // remove consecutive slashes
+    str = str.replace(/([^:\s])\/+/g, "$1/")
+    // remove trailing slash before parameters or hash
+    str = str.replace(/\/(\?|&|#[^!])/g, "$1")
+    // replace ? in parameters with &
+    str = str.replace(/(\?.+)\?/g, "$1&")
+    return str
+  }
+
+  var input = args
+  var options = {}
+
+  if (typeof args[0] === "object") {
+    // new syntax with array and options
+    input = args[0]
+    options = args[1] || {}
+  }
+
+  var joined = [].slice.call(input, 0).join("/")
+
+  return normalize(joined, options)
+}
+
+export const koaOaiRouterPath = (ver, basePath, ...args) => {
+  if (!ver || !basePath) return ""
+
+  let newBasePath = ""
+  let versioning = document.getElementById("versioning").innerText
+  let adjustBasePath = document.getElementById("adjustBasePath").innerText
+
+  if ("true" === versioning) {
+    var versionObj = version(ver)
+    newBasePath = urljoin("/v" + versionObj.major, basePath, urljoin(args))
+  } else {
+    newBasePath = basePath
+  }
+
+  if ("true" === adjustBasePath) {
+    var prefix = window.location.pathname.substr(0, window.location.pathname.lastIndexOf("/"))
+    if (prefix && prefix !== "/") {
+      newBasePath = urljoin(prefix, basePath, urljoin(args))
+    }
+  }
+
+  return newBasePath
+}

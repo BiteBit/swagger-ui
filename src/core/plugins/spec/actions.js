@@ -2,6 +2,8 @@ import YAML from "js-yaml"
 import parseUrl from "url-parse"
 import serializeError from "serialize-error"
 
+import {koaOaiRouterPath} from "../../utils"
+
 // Actions conform to FSA (flux-standard-actions)
 // {type: string,payload: Any|Error, meta: obj, error: bool}
 
@@ -74,6 +76,10 @@ export const parseToJson = (str) => ({specActions, specSelectors, errActions}) =
       line: e.mark && e.mark.line ? e.mark.line + 1 : undefined
     })
   }
+
+  // for koa-oai-router
+  json.basePath = koaOaiRouterPath(json.info.version, json.basePath)
+
   return specActions.updateJsonSpec(json)
 }
 
